@@ -5,8 +5,8 @@
 #define RELAY_PIN A6
 
 //Stepper Motors
-#define STEPS 100
-Stepper stepperArm(STEPS, 8, 9, 10, 11);  // Stepper motor for robotic arm
+#define STEPNUM 100
+Stepper stepperArm(STEPNUM, A1, A2, A3, A4);  // Stepper motor for robotic arm
 
 void setup() {
   Serial.begin(115200);  // USB serial to Pi
@@ -17,14 +17,15 @@ void setup() {
 
 void loop() {
   if (Serial.available() >= 2) {  // command byte + data byte
-    uint8_t cmd = Serial.read();
-    uint8_t value = Serial.read();
+    int8_t cmd = Serial.read();
+    int8_t value = Serial.read();
+    int8_t steps = value;  //convert byte to signed number
 
     switch (cmd) {
-      case 0x01:              // Robotic Arm Stepper
-          int8_t steps = (int8_t) value;  //convert byte to signed number
-          stepperArm.step(steps);   //Positive = CW, Negative = CCW
-          Serial.write(0xAA);
+      case 0x01:  // Robotic Arm Stepper
+
+        stepperArm.step(steps);  //Positive = CW, Negative = CCW
+        Serial.write(0xAA);
         break;
       case 0x02:  // Relay
         if (value == 0x00) {
