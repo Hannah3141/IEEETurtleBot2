@@ -24,8 +24,8 @@ void loop() {
 
     switch (cmd) {
       case 0x01:  // Robotic Arm Stepper
-        stepperArm.step(steps);  //Positive = CW, Negative = CCW
         Serial.write(0xAA);
+        stepperArm.step(steps);  //Positive = CW, Negative = CCW
         break;
       case 0x02:  // Relay
         if (value == 0x00) {
