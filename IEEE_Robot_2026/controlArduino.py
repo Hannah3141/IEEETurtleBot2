@@ -13,7 +13,7 @@ def move_motor(steps: int):
     if not -128 <= steps <= 127:
         raise ValueError("Steps must be between -128 and 127.")
     byte_value = steps & 0xFF
-    ser.write(bytes([0x01, byte_value))
+    ser.write(bytes([0x01, byte_value]))
     ack = ser.read()
     if ack == b'\xAA':
         print(f"Motor moved {steps} steps")
