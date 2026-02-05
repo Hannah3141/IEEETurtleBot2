@@ -1,21 +1,25 @@
 #include <Arduino.h>
-#include <Stepper.h>
+#include <TinyStepper_28BYJ_48.h>
 
 // Relay for Electromagnet
 #define RELAY_PIN A6
 
 //Stepper Motors
-#define STEPNUM 1000
-Stepper stepperArm(STEPNUM, A1, A2, A3, A4);  // Stepper motor for robotic arm
+#define MOTOR_1_IN1 A4
+#define MOTOR_1_IN2 A3
+#define MOTOR_1_IN3 A2
+#define MOTOR_1_IN4 A1
+
+#define STEPS_PER_REVOLUTION 2048
+
+TinyStepper_28BYJ_48 stepper1;
+
 
 void setup() {
   Serial.begin(115200);  // USB serial to Pi
   pinMode(RELAY_PIN, OUTPUT);
   digitalWrite(RELAY_PIN, LOW);  // relay off
-  stepperArm.setSpeed(30);       // motor speed = 30RPMs
-  //initialize stepper
-  stepperArm.step(1);
-  stepperArm.step(-1);
+  stepper1.connectToPins(MOTOR_1_IN1, MOTOR_1_IN2, MOTOR_1_IN3, MOTOR_1_IN4);
 }
 
 void loop() {
