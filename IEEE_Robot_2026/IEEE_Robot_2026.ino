@@ -13,6 +13,9 @@ void setup() {
   pinMode(RELAY_PIN, OUTPUT);
   digitalWrite(RELAY_PIN, LOW);  // relay off
   stepperArm.setSpeed(30);       // motor speed = 30RPMs
+  //initialize stepper
+  stepperArm.step(1);
+  stepperArm.step(-1);
 }
 
 void loop() {
