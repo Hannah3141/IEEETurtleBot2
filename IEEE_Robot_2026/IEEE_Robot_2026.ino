@@ -17,13 +17,14 @@ void setup() {
 
 void loop() {
   if (Serial.available() >= 2) {  // command byte + data byte
-    int8_t cmd = Serial.read();
-    int8_t value = Serial.read();
+    uint8_t cmd = Serial.read();
+    uint8_t value = Serial.read();
+
+    int8_t steps = (int8_t)value;
 
     switch (cmd) {
       case 0x01:  // Robotic Arm Stepper
-        Serial.write(values);
-        stepperArm.step(values);  //Positive = CW, Negative = CCW
+        stepperArm.step(steps);  //Positive = CW, Negative = CCW
         Serial.write(0xAA);
         break;
       case 0x02:  // Relay
