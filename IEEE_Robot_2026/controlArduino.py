@@ -28,7 +28,7 @@ def move_motor(steps: int, direction: int):
         print("Error moving motor")
 
 def set_relay(on: bool):
-    ser.write(bytes([0x02, 0x01 if on else 0x00]))
+    ser.write(bytes([0x02, 0x01 if on else 0x00, 0x00]))
     ack = ser.read()
     if ack == b'\xAA':
         print(f"Relay {'ON' if on else 'OFF'}")
