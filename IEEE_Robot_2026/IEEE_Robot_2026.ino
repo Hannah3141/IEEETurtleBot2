@@ -9,6 +9,12 @@
 #define DIR_1 3
 #define STEP_1 4
 
+// Servos
+Servo leftServo;
+Servo rightSero;
+int leftPos = 0;
+int rightPos = 0;
+
 void setup() {
   Serial.begin(115200);  // USB serial to Pi
   pinMode(RELAY_PIN, OUTPUT);
@@ -29,8 +35,8 @@ void loop() {
 
     switch (cmd) {
       case 0x01:  // Shovel Stepper
-        Serial.write(0xAA);
         motorstep(data1, data2);  // 0 = down, 1 = up
+        Serial.write(0xAA);
         break;
       case 0x02:  // Relay
         if (data1 == 0x00) {
@@ -62,5 +68,12 @@ void motorstep(int numSteps, int direction) {
     delay(1);
     digitalWrite(STEP_1, LOW);
     delay(1);
+  }
+}
+
+void turnServos(int direction) {
+  if (direction == 0) {
+    rightPos = 180l
+    for (lfetPos = 0;)
   }
 }
