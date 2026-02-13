@@ -10,16 +10,14 @@ time.sleep(2)  # wait for Arduino to reset
 
 # --- Command functions ---
 def move_motor(steps: int, direction: int):
-    if direction not in (-1, 1):
-        raise ValueError("Direction must be -1 or +1.")
-    if not 0 <= steps <= 127:
-        raise ValueError("Steps must be between -128 and 127.")
+    if direction not in (0, 1): # 0 = down, 1 = up
+        raise ValueError("Direction must be 0 or +1.")
     if direction == 1:
         direction_byte = 0x01
-        direction_str = "clockwise"
+        direction_str = "up"
     else:
         direction_byte = 0x00
-        direction_str = "counterclockwise"
+        direction_str = "down"
     ser.write(bytes([0x01, steps, direction_byte]))
     ack = ser.read()
     if ack == b'\xAA':
@@ -36,8 +34,8 @@ def set_relay(on: bool):
         print("Error setting relay")
 
 # --- Example Usage ---
-move_motor(100, 1)  # move 100 steps CW 
-move_motor(20, -1)  # move 20 steps CCW	
+move_motor(1000, 1)  # move 1000 steps up
+move_motor(20, 0)  # move 20 steps down
 set_relay(True)     # turn relay ON
 time.sleep(2)
 set_relay(False)    # turn relay OFF
