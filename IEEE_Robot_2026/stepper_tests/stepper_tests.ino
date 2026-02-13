@@ -3,8 +3,8 @@
 
 // Stepper Motor
 #define ENA_1 2
-#define STEP_1 3
-#define DIR_1 4
+#define STEP_1 4
+#define DIR_1 3
 
 // Servos
 Servo leftServo;
@@ -17,36 +17,36 @@ void setup() {
   pinMode(STEP_1, OUTPUT);
   pinMode(DIR_1, OUTPUT);
 
+  digitalWrite(ENA_1, LOW);
   leftServo.attach(8);
   rightServo.attach(9);
 }
 
 void loop() {
-  motorstep(10, 1);
+  motorstep(10000, 1);  // Up
   turnServos(0);
-  delay(5);
-  motorstep(10, 0);
+  //motorstep(1000, 0);  //Down
   turnServos(1);
 }
 
-void motorStep(int numSteps, int direction) {
+void motorstep(int numSteps, int direction) {
   if (direction == 0) {
     digitalWrite(DIR_1, LOW);
   } else {
     digitalWrite(DIR_1, HIGH);
   }
-  for (int x = 0; x < numSTEPS; x++) {
+  for (int x = 0; x < numSteps; x++) {
     digitalWrite(STEP_1, HIGH);
-    delayMicroseconds(700);  // by changing this time delay between the steps we can change the rotation speed
+    delay(1);  // by changing this time delay between the steps we can change the rotation speed
     digitalWrite(STEP_1, LOW);
-    delayMicroseconds(700);
+    delay(1);
   }
 }
 
 void turnServos(int direction) {
   if (direction == 0) {
     rightPos = 180;
-    for (leftPos = 0, leftPos < 180; leftPos++) {
+    for (leftPos = 0; leftPos < 180; leftPos++) {
       leftServo.write(leftPos);
       rightServo.write(rightPos);
       rightPos--;
