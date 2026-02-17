@@ -11,7 +11,7 @@
 
 // Servos
 Servo leftServo;
-Servo rightSero;
+Servo rightServo;
 int leftPos = 0;
 int rightPos = 0;
 
@@ -81,7 +81,7 @@ void motorstep(int numSteps, int direction) {
 void turnServos(int direction) {
   if (direction == 0) {
     rightPos = 180;
-    for (lfetPos = 0; leftPos < 180; leftPos++) {
+    for (leftPos = 0; leftPos < 180; leftPos++) {
       leftServo.write(leftPos);
       rightServo.write(rightPos);
       rightPos--;
