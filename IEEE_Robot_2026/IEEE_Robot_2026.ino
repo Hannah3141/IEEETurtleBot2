@@ -25,6 +25,9 @@ void setup() {
   pinMode(DIR_1, OUTPUT);
   pinMode(STEP_1, OUTPUT);
   digitalWrite(ENA_1, LOW);
+
+  leftServo.attach(8);
+  rightServo.attach(9);
 }
 
 void loop() {
@@ -48,6 +51,10 @@ void loop() {
         } else {
           Serial.write(0xFF);
         }
+        break;
+      case 0x03: // Servos
+        turnServos(data1);
+        Serial.write(0xAA);
         break;
       default:
         Serial.write(0xFF);  // ERROR: unknown command
@@ -73,7 +80,20 @@ void motorstep(int numSteps, int direction) {
 
 void turnServos(int direction) {
   if (direction == 0) {
-    rightPos = 180l
-    for (lfetPos = 0;)
+    rightPos = 180;
+    for (lfetPos = 0; leftPos < 180; leftPos++) {
+      leftServo.write(leftPos);
+      rightServo.write(rightPos);
+      rightPos--;
+      delay(15);
+    }
+  } else {
+    leftPos = 180;
+    for (rightPos = 0; rightPos < 180; rightPos++) {
+      leftServo.write(leftPos);
+      rightServo.write(rightPos);
+      leftPos--;
+      delay(15);
+    }
   }
 }

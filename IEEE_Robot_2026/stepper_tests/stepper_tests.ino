@@ -53,6 +53,7 @@ void turnServos(int direction) {
       delay(15);
     }
   } else {
+    leftPos = 180;
     for (rightPos = 0; rightPos < 180; rightPos++) {
       leftServo.write(leftPos);
       rightServo.write(rightPos);

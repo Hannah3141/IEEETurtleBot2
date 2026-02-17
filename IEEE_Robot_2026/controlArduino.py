@@ -25,6 +25,15 @@ def move_motor(steps: int, direction: int):
     else:
         print("Error moving motor")
 
+def turn_servos(direction: int):
+    if direction not in (0,1):
+        raise ValueError ("Direction must be 0 or +1");
+    ser.write(bytes([0x03, direction, 0x00]))
+    if ack == b'\xAA':
+        print(f"Servos turned")
+    else:
+        print("Error turning servos")
+
 def set_relay(on: bool):
     ser.write(bytes([0x02, 0x01 if on else 0x00, 0x00]))
     ack = ser.read()
