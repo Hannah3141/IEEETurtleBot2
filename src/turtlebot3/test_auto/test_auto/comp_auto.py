@@ -105,6 +105,9 @@ class Turtlebot3RelativeMove(Node):
 
     def generate_path(self):
         twist = CmdVelMsg() #the message we will eventually publish to move
+        if state > len(states):
+            twist.linear.x = 0
+            twist.angular. z = 0
         if not self.init_odom_state: #if we don't have new odometry data, no reason to move
             return
         if not self.get_key_state:
@@ -126,7 +129,7 @@ class Turtlebot3RelativeMove(Node):
 
         else:
             if abs(self.goal_pose_y - self.last_pose_x) > 0.05: #this 0.05 may need to change for precision's sake
-                twist.linear.x = 0.05 #change this for speed
+                twist.linear.x = 0.05 #change this for speed TODO:x not y???
                 self.get_logger().info('going forward') #add telemetry
             elif abs(self.goal_pose_theta - self.last_pose_theta) > 0.05: #0.05 may need to change
                 twist.angular.z = 0.03 if self.goal_pose_theta - self.last_pose_theta > 0 else -0.03
