@@ -29,6 +29,7 @@ def turn_servos(direction: int):
     if direction not in (0,1):
         raise ValueError ("Direction must be 0 or +1");
     ser.write(bytes([0xFF, 0x03, direction, 0x00]))
+    ack = ser.read()
     if ack == b'\xAA':
         print(f"Servos turned")
     else:
