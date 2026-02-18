@@ -44,9 +44,9 @@ def set_relay(on: bool):
         print("Error setting relay")
 
 # --- Example Usage ---
-move_motor(256, 1)  # move 1000 steps up
+move_motor(250, 1)  # move 1000 steps up
 time.sleep(2)
-move_motor(256, 0)  # move 20 steps down
+move_motor(250, 0)  # move 20 steps down
 set_relay(True)     # turn relay ON
 time.sleep(2)
 set_relay(False)    # turn relay OFF
