@@ -44,19 +44,12 @@ void loop() {
 
       switch (cmd) {
         case 0x01:                  // Shovel Stepper
-          motorstep(data1, data2);  // 0 = down, 1 = up
+          motorStep(data1, data2);  // 0 = down, 1 = up
           Serial.write(0xAA);
           break;
         case 0x02:  // Relay
-          if (data1 == 0x00) {
-            digitalWrite(RELAY_PIN, LOW);  // OFF (active-low)
-            Serial.write(0xAA);
-          } else if (data1 == 0x01) {
-            digitalWrite(RELAY_PIN, HIGH);  // ON (active-low)
-            Serial.write(0xAA);
-          } else {
-            Serial.write(0xFF);
-          }
+          setRelay(data1);
+          Serial.write(0xAA);
           break;
         case 0x03:  // Servos
           turnServos(data1);
@@ -70,10 +63,10 @@ void loop() {
   }
 }
 
-void motorstep(int numSteps, int direction) {
+void motorStep(int numSteps, int direction) {
   if (direction == 0) {  // move down
     digitalWrite(DIR_1, LOW);
-  } else {  // move up
+  } else if (direction == 1) {  // move up
     digitalWrite(DIR_1, HIGH);
   }
 
@@ -85,12 +78,20 @@ void motorstep(int numSteps, int direction) {
   }
 }
 
+void setRelay(int setting) {
+  if (setting == 0x00) {
+    digitalWrite(RELAY_PIN, LOW);  // OFF
+  } else if (setting == 0x01) {
+    digitalWrite(RELAY_PIN, HIGH);  // ON
+  }
+}
+
 void turnServos(int direction) {
   for (servoPos = 0; servoPos < 180; servoPos++) {
     if (direction == 0) {
       leftServo.write(servoPos);
       rightServo.write(180 - servoPos);
-    } else {
+    } else if (direction == 1) {
       leftServo.write(180 - servoPos);
       rightServo.write(servoPos);
     }
