@@ -17,6 +17,7 @@ int rightPos = 0;
 
 void setup() {
   Serial.begin(115200);  // USB serial to Pi
+
   pinMode(RELAY_PIN, OUTPUT);
   digitalWrite(RELAY_PIN, LOW);  // relay off
 
@@ -26,6 +27,9 @@ void setup() {
   pinMode(STEP_1, OUTPUT);
   digitalWrite(ENA_1, LOW);
 
+  leftServo.write(90); // Prevent servo from jumping (hopefully)
+  rightServo.write(90);
+  delay(50);
   leftServo.attach(8);
   rightServo.attach(9);
 }
