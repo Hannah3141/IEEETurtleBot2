@@ -12,8 +12,7 @@
 // Servos
 Servo leftServo;
 Servo rightServo;
-int leftPos = 0;
-int rightPos = 0;
+int servoPos = 0;
 
 void setup() {
   Serial.begin(115200);  // USB serial to Pi
@@ -27,7 +26,7 @@ void setup() {
   pinMode(STEP_1, OUTPUT);
   digitalWrite(ENA_1, LOW);
 
-  leftServo.write(90); // Prevent servo from jumping (hopefully)
+  leftServo.write(90);  // Prevent servo from jumping (hopefully)
   rightServo.write(90);
   delay(50);
   leftServo.attach(8);
@@ -71,37 +70,30 @@ void loop() {
   }
 }
 
-  void motorstep(int numSteps, int direction) {
-    if (direction == 0) {  // move down
-      digitalWrite(DIR_1, LOW);
-    } else {  // move up
-      digitalWrite(DIR_1, HIGH);
-    }
-
-    for (int i = 0; i < numSteps; i++) {
-      digitalWrite(STEP_1, HIGH);
-      delay(1);
-      digitalWrite(STEP_1, LOW);
-      delay(1);
-    }
+void motorstep(int numSteps, int direction) {
+  if (direction == 0) {  // move down
+    digitalWrite(DIR_1, LOW);
+  } else {  // move up
+    digitalWrite(DIR_1, HIGH);
   }
 
-  void turnServos(int direction) {
+  for (int i = 0; i < numSteps; i++) {
+    digitalWrite(STEP_1, HIGH);
+    delay(1);
+    digitalWrite(STEP_1, LOW);
+    delay(1);
+  }
+}
+
+void turnServos(int direction) {
+  for (servoPos = 0; servoPos < 180; servoPos++) {
     if (direction == 0) {
-      rightPos = 180;
-      for (leftPos = 0; leftPos < 180; leftPos++) {
-        leftServo.write(leftPos);
-        rightServo.write(rightPos);
-        rightPos--;
-        delay(15);
-      }
+      leftServo.write(servoPos);
+      rightServo.write(180 - servoPos);
     } else {
-      leftPos = 180;
-      for (rightPos = 0; rightPos < 180; rightPos++) {
-        leftServo.write(leftPos);
-        rightServo.write(rightPos);
-        leftPos--;
-        delay(15);
-      }
+      leftServo.write(180 - servoPos);
+      rightServo.write(servoPos);
     }
+    delay(15);
   }
+}

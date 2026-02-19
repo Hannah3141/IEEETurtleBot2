@@ -23,9 +23,9 @@ void setup() {
 }
 
 void loop() {
-  //motorstep(100, 1);  // Up
+  motorstep(200, 1);  // Up
   turnServos(0);
-  motorstep(500, 0);  //Down
+  motorstep(200, 0);  //Down
   turnServos(1);
 }
 
