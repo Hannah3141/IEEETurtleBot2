@@ -31,18 +31,9 @@ if ros_distro == 'humble':
 else:
     from geometry_msgs.msg import TwistStamped as CmdVelMsg
 
-#I am not dealing with more python nonsense, just go with it
-states = [(0, intom(12), 0), (0, 0, degtorad(-90)), (0, intom(12), 0), (0, 0, degtorad(-90)), (0, intom(12), 0), (0, 0, degtorad(-90)), (0, intom(12), 0), (0, 0, degtorad(-90))]
-state = 0
-
 rows, cols = (4, 8)
 field = [[0 for i in range(cols)] for j in range(rows)]
 field[3][2] = 1 #starting sqaure (there are obviously no astroids here, but whatever)
-
-def intom(inch): #inch to meter conversion, bc IEEE uses in and turtlebot uses m
-    return inch * 0.0254
-def degtorad(deg):
-    return deg * 3.141592 / 180
 
 #I copied this class exactly from Michael's multicontrol mynode, idk where he got it from; used to hopefully help stop the idiot at the end
 class SigintSkipper:
@@ -60,6 +51,15 @@ class SigintSkipper:
         print('exiting sigint skipper')
 
 class Turtlebot3RelativeMove(Node):
+    def intom(inch): #inch to meter conversion, bc IEEE uses in and turtlebot uses m
+        return inch * 0.0254
+    def degtorad(deg):
+        return deg * 3.141592 / 180
+
+    #I am not dealing with more python nonsense, just go with it
+    states = [(intom(12), 0, 0, "x"), (intom(12), 0, degtorad(-90), "theta"), (intom(12), intom(12), degtorad(-90), "y"), (intom(12), intom(12), degtorad(-180), "theta"), (0, intom(12), degtorad(-180), "x"), (0, intom(12), degtorad(90), "theta"), (0, 0, degtorad(90), "y"), (0, 0, 0, "theta")]
+    state = 0
+
     def __init__(self):
         super().__init__('turtlebot3_relative_move')
 
@@ -87,14 +87,13 @@ class Turtlebot3RelativeMove(Node):
         self.update_timer = self.create_timer(0.010, self.update_callback) #call that function every 0.01 seconds, i think it does start automatically, idk why it needs to go into a variable
 
         self.get_logger().info('TurtleBot3 relative move node has been initialised.') #log a message with INFO severity (into the log file i guess, you can find it somewhere in rviz? go ask the ros tutorial)
-
+    #this came from here https://stackoverflow.com/questions/74976911/create-an-odometry-publisher-node-in-python-ros2
+    #its gone, i dont think it worked
     #this sets of previous (current) position based on the odometry data (better hope its correct)
     def odom_callback(self, msg): #function called when we get data from odometry subscription
         self.last_pose_x = msg.pose.pose.position.x
         self.last_pose_y = msg.pose.pose.position.y
         _, _, self.last_pose_theta = self.euler_from_quaternion(msg.pose.pose.orientation) #changes how angles are represented, math smth smth
-
-        self.get_logger().info('msg.pose.pose.position.x' + str(msg.pose.pose.position.x))
 
         self.init_odom_state = True #this tells us whether we should trust the data in last_pose
 
@@ -105,7 +104,7 @@ class Turtlebot3RelativeMove(Node):
 
     def generate_path(self):
         twist = CmdVelMsg() #the message we will eventually publish to move
-        if state > len(states):
+        if self.state > len(self.states):
             twist.linear.x = 0
             twist.angular. z = 0
         if not self.init_odom_state: #if we don't have new odometry data, no reason to move
@@ -113,7 +112,7 @@ class Turtlebot3RelativeMove(Node):
         if not self.get_key_state:
             #since its converting relative to absolute x, y, theta anyway, maybe we should just use absolute? also to decrease error
             #self.goal_pose_x, self.goal_pose_y, self.goal_pose_theta = states[state]
-            input_x, input_y, input_theta = states[state]
+            input_x, input_y, input_theta = self.states[self.state][0:3]
 
             input_x_global = ( #idk this math exactly
                 math.cos(self.last_pose_theta) * input_x - math.sin(self.last_pose_theta) * input_y
@@ -128,14 +127,42 @@ class Turtlebot3RelativeMove(Node):
             self.get_key_state = True #this indicates if we have new user input to move based on
 
         else:
-            if abs(self.goal_pose_y - self.last_pose_x) > 0.05: #this 0.05 may need to change for precision's sake
-                twist.linear.x = 0.05 #change this for speed TODO:x not y???
-                self.get_logger().info('going forward') #add telemetry
-            elif abs(self.goal_pose_theta - self.last_pose_theta) > 0.05: #0.05 may need to change
-                twist.angular.z = 0.03 if self.goal_pose_theta - self.last_pose_theta > 0 else -0.03
-                self.get_logger().info('turning')
+            #straight
+            if (self.states[self.state][3] == "y"):
+                if (self.goal_pose_y - self.last_pose_y) > 0.1: #this may need to change for precision's sake
+                    twist.linear.y = 0.075 #change this for speed
+                    self.get_logger().info('going y ' + str(self.goal_pose_y) + ' ' + str(self.last_pose_y)) #add telemetry
+                elif (self.goal_pose_y - self.last_pose_y) < -0.1:
+                    twist.linear.y = -0.075
+                    self.get_logger().info('going -y ' + str(self.goal_pose_y - self.last_pose_y))
+            elif (self.states[self.state][3] == "x"):
+                if (self.goal_pose_x - self.last_pose_x) > 0.1: #this may need to change for precision's sake
+                    twist.linear.x = 0.075 #change this for speed
+                    self.get_logger().info('going forward ' + str(self.goal_pose_x) + ' ' + str(self.last_pose_x)) #add telemetry
+                elif (self.goal_pose_x - self.last_pose_x) < -0.1:
+                    twist.linear.x = -0.075
+                    self.get_logger().info('going back ' + str(self.goal_pose_x - self.last_pose_x))
+            #turn
+            elif (self.states[self.state][3] == "theta"):
+                if abs(self.goal_pose_theta - self.last_pose_theta) > 0.1: #this number may need to change
+                    #make it between -pi and pi
+                    while self.goal_pose_theta > 6.30:
+                        self.goal_pose_theta = self.goal_pose_theta - 6.28
+                    while self.goal_pose_theta < -6.30:
+                        self.goal_pose_theta = self.goal_pose_theta + 6.28
+                    while self.last_pose_theta > 6.3:
+                        self.last_pose_theta = self.last_pose_theta - 6.28
+                    while self.last_pose_theta < -6.3:
+                        self.last_pose_theta = self.last_pose_theta + 6.28
+
+                    if self.goal_pose_theta - self.last_pose_theta > 0.01: #TODO: need to normalize this between -pi to pi
+                        twist.angular.z = 0.1
+                        self.get_logger().info(str(twist.angular.z) + ' power')
+                    else:
+                        twist.angular.z = -0.1
+                    self.get_logger().info(str(self.goal_pose_theta - self.last_pose_theta) + ' turning')
             else:
-                state = state + 1
+                self.state = self.state + 1
                 self.get_key_state = False 
 
             if ros_distro == 'humble':

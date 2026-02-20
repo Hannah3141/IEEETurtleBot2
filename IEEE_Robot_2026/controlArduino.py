@@ -47,8 +47,8 @@ def set_relay(on: bool):
 move_motor(250, 1)  # move 1000 steps up
 time.sleep(2)
 move_motor(250, 0)  # move 20 steps down
-set_relay(True)     # turn relay ON
+#set_relay(True)     # turn relay ON
 time.sleep(2)
-set_relay(False)    # turn relay OFF
+#set_relay(False)    # turn relay OFF
 turn_servos(0)
 turn_servos(1)
